@@ -1,0 +1,56 @@
+class Solution {
+public:
+    #define ll long long
+    #define N 100005
+    vector<ll>g[N];
+    ll vis[N];
+    vector<ll>prime;
+    ll groupCount[N];
+    ll groupNumber;
+
+    long long dfs(ll nd) {
+        if(vis[nd] || prime[nd]) return 0;
+        vis[nd]=groupNumber;
+        long long ans=1;
+        for(long long cd : g[nd]) {
+            ans+=dfs(cd);
+        }
+        return ans;
+    }
+
+    long long countPaths(int n, vector<vector<int>>& ed) {
+        prime.resize(N,1);
+        prime[0]=0,prime[1]=0;
+        for(long long i=2; i<N-1; i++) {
+            for(long long j=i*i; j<N-1; j+=i) prime[j]=0;
+        }
+        for(int i=0; i<ed.size(); i++) {
+            g[ed[i][0]].push_back(ed[i][1]);
+            g[ed[i][1]].push_back(ed[i][0]);
+        }
+        groupNumber=1;
+        for(ll i=1; i<=n; i++) {
+            ll count= dfs(i);
+            groupCount[groupNumber++]=count;
+        }
+        ll ans=0;
+        for(int i=1; i<=n; i++) {
+            if(prime[i]) {
+                ll sum=0;
+                vector<ll>v;
+                for(int cd: g[i]) {
+                    v.push_back(groupCount[vis[cd]]);
+                    sum+=groupCount[vis[cd]];
+                }
+                ll cr=0;
+                for(ll it : v) {
+                    cr+=(sum-it)*it;
+                }
+                cr/=2;
+                ans+=cr+sum;
+            }
+        }
+
+        return ans;
+    }
+};
